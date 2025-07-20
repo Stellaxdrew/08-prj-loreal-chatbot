@@ -51,15 +51,15 @@ chatForm.addEventListener("submit", (e) => {
 
   // Only allow questions about L'Oréal products, routines, and recommendations
   if (!isLorealRelated(userMsg)) {
-    chatWindow.innerHTML += `<div class=\"msg user\"><span class=\"avatar\">You</span><div class=\"bubble\">${userMsg}</div></div>`;
-    chatWindow.innerHTML += `<div class=\"msg ai\"><span class=\"avatar\">AI</span><div class=\"bubble\">Sorry, I can only answer questions about L'Oréal products, routines, and recommendations.</div></div>`;
+    chatWindow.innerHTML += `<div class="msg user"><div>${userMsg}</div></div>`;
+    chatWindow.innerHTML += `<div class="msg ai"><div>Sorry, I can only answer questions about L'Oréal products, routines, and recommendations.</div></div>`;
     userInput.value = "";
     chatWindow.scrollTop = chatWindow.scrollHeight;
     return;
   }
 
   // Show user message in chat window
-  chatWindow.innerHTML += `<div class=\"msg user\"><span class=\"avatar\">You</span><div class=\"bubble\">${userMsg}</div></div>`;
+  chatWindow.innerHTML += `<div class="msg user"><div>${userMsg}</div></div>`;
   chatWindow.scrollTop = chatWindow.scrollHeight;
   userInput.value = "";
 
@@ -80,7 +80,7 @@ chatForm.addEventListener("submit", (e) => {
       {
         role: "system",
         content:
-          "You are a helpful assistant for L'Oréal. Remember the user's name if provided, and use details from previous questions to give natural, multi-turn answers. Only answer questions about L'Oréal products, routines, recommendations, or beauty-related topics. If asked about anything else, politely refuse.",
+          "You are a helpful assistant for L'Oréal. Remember the user's name if provided, and use details from previous questions to give natural, multi-turn answers. If the user replies with 'yes', 'no', or other short answers, use the context of their previous question to respond appropriately. Only answer questions about L'Oréal products, routines, recommendations, or beauty-related topics. If asked about anything else, politely refuse.",
       },
     ];
   }
@@ -104,8 +104,7 @@ chatForm.addEventListener("submit", (e) => {
   // Show loading message
   const loadingMsg = document.createElement("div");
   loadingMsg.className = "msg ai";
-  loadingMsg.innerHTML =
-    '<span class="avatar">AI</span><div class="bubble">Thinking...</div>';
+  loadingMsg.innerHTML = "<div>Thinking...</div>";
   chatWindow.appendChild(loadingMsg);
   chatWindow.scrollTop = chatWindow.scrollHeight;
 
@@ -129,16 +128,19 @@ chatForm.addEventListener("submit", (e) => {
       chatWindow.removeChild(loadingMsg);
       // Format the assistant's reply for readability
       let formattedMsg = aiMsg
+        // Convert newlines to <br> for better readability
         .replace(/\n{2,}/g, "<br><br>")
         .replace(/\n/g, "<br>")
+        // Convert simple lists to <ul><li>...</li></ul>
         .replace(
           /(?:^|<br>)([-*•])\s?(.+?)(?=<br>|$)/g,
           (match, bullet, item) => `<li>${item.trim()}</li>`
         );
+      // If we created <li> elements, wrap them in <ul>
       if (formattedMsg.includes("<li>")) {
         formattedMsg = formattedMsg.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
       }
-      chatWindow.innerHTML += `<div class="msg ai"><span class="avatar">AI</span><div class="bubble">${formattedMsg}</div></div>`;
+      chatWindow.innerHTML += `<div class="msg ai"><div>${formattedMsg}</div></div>`;
       chatWindow.scrollTop = chatWindow.scrollHeight;
       // Add assistant reply to history
       window.chatHistory.push({ role: "assistant", content: aiMsg });
